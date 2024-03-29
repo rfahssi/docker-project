@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend-nodejs:
+    build: ./backend-nodejs/
+    container_name: backend_nodejs_container
+    environment:
+      DB_HOST: mysql_container
+      DB_USER: root
+      DB_PASSWORD: toto
+      DB_NAME: test
+    ports:
+      - "3000:3000"
+    networks:
+      - network_nodejs
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: toto
+    volumes:
+      - mysql_volume:/var/lib/mysql
+      - ./sql/monannuaire_mysql.sql:/docker-entrypoint-initdb.d/monannuaire_mysql.sql
+    networks:
+      - network_phpmyadmin
+      - network_nodejs
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin_container
+    environment:
+      PMA_HOST: tp3_lab3_mySql
+    ports:
+      - "10000:80"
+    networks:
+      - network_phpmyadmin
+    depends_on:
+      - mysql
+
+networks:
+  network_phpmyadmin:
+  network_nodejs:
+
+volumes:
+  mysql_volume:
